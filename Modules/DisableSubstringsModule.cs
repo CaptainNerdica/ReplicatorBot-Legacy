@@ -49,7 +49,7 @@ namespace ReplicatorBot
 		[Command("clear")]
 		[Summary("Removes all strings from the list of disabled strings")]
 		[Priority(2)]
-		public async Task ClearDisabledAsync([Remainder] string a = null)
+		public async Task ClearDisabledAsync()
 		{
 			Program.Replicant.AvailableServers[Context.Guild.Id].DisabledSubstrings.Clear();
 			await ReplyAsync("Successfully cleared all disabled strings");

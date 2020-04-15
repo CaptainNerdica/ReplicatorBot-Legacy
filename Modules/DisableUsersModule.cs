@@ -46,7 +46,7 @@ namespace ReplicatorBot
 		}
 		[Command("clear")]
 		[Summary("Removes all users from the list of disabled users")]
-		public async Task ClearDisabledAsync([Remainder] string a = null)
+		public async Task ClearDisabledAsync()
 		{
 			Program.Replicant.AvailableServers[Context.Guild.Id].DisabledUserIds.Clear();
 			await ReplyAsync("Successfully cleared all disabled users");

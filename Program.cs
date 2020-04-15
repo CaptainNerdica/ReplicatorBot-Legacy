@@ -11,7 +11,6 @@ namespace ReplicatorBot
 	public class Program
 	{
 		public static ReplicatorBot Replicant;
-		public static CommandHandler Commands;
 		public static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 		public async Task MainAsync()
 		{

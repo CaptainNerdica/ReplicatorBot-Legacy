@@ -116,10 +116,8 @@ namespace ReplicatorBot
 			var fileInfo = new FileInfo(path);
 			if (fileInfo.Exists)
 				fileInfo.Delete();
-			using (var file = File.Open(path, FileMode.OpenOrCreate))
-			{
-				formatter.Serialize(file, fields);
-			}
+			using var file = File.Open(path, FileMode.OpenOrCreate);
+			formatter.Serialize(file, fields);
 		}
 		public void Flush() => WriteToDisk();
 

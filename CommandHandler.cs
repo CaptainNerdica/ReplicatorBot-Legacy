@@ -28,8 +28,7 @@ namespace ReplicatorBot
 
 		private async Task HandleCommandsAsync(SocketMessage messageParam)
 		{
-			var message = messageParam as SocketUserMessage;
-			if (message == null) return;
+			if (!(messageParam is SocketUserMessage message)) return;
 
 			int argPos = 0;
 
@@ -37,10 +36,7 @@ namespace ReplicatorBot
 
 			var context = new SocketCommandContext(_client, message);
 
-			var result = await _commands.ExecuteAsync(context: context, argPos: argPos, services: null);
-
-			//if (!result.IsSuccess)
-			//	await context.Channel.SendMessageAsync(result.ErrorReason);
+			await _commands.ExecuteAsync(context: context, argPos: argPos, services: null);
 		}
 	}
 }

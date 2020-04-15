@@ -17,10 +17,10 @@ namespace ReplicatorBot
 		public Dictionary<ulong, DiscordServerInfo> AvailableServers;
 		public CancellationTokenSource CancellationTokenSource;
 		public CancellationToken CancellationToken;
-		private DiscordSocketClient _client;
+		private readonly DiscordSocketClient _client;
 		private CommandService _commandService;
 		private CommandHandler _commandHandler;
-		private string _botToken;
+		private readonly string _botToken;
 
 		public ReplicatorBot()
 		{
@@ -72,11 +72,9 @@ namespace ReplicatorBot
 				File.CreateText(ConfigurationManager.AppSettings["LogFile"]).Close();
 			try
 			{
-				using (StreamWriter s = File.AppendText(ConfigurationManager.AppSettings["LogFile"]))
-				{
-					s.WriteLine(msg);
-					s.Close();
-				}
+				using StreamWriter s = File.AppendText(ConfigurationManager.AppSettings["LogFile"]);
+				s.WriteLine(msg);
+				s.Close();
 			}
 			catch { }
 			return Task.CompletedTask;
@@ -84,8 +82,7 @@ namespace ReplicatorBot
 		private async Task MessageReceivedAsync(SocketMessage message)
 		{
 			SocketGuild messageGuild = (message.Author as IGuildUser).Guild as SocketGuild;
-			DiscordServerInfo serverInfo;
-			AvailableServers.TryGetValue(messageGuild.Id, out serverInfo);
+			AvailableServers.TryGetValue(messageGuild.Id, out DiscordServerInfo serverInfo);
 			ChannelPermissions permissions = messageGuild.GetUser(_client.CurrentUser.Id).GetPermissions(message.Channel as IGuildChannel);
 			Random rand = new Random();
 
@@ -222,7 +219,6 @@ namespace ReplicatorBot
 		private async Task AddAvailableGuild(SocketGuild guild)
 		{
 			this.AvailableServers.Add(guild.Id, new DiscordServerInfo(guild));
-			DiscordServerInfo info = AvailableServers[guild.Id];
 			await BotLog(new LogMessage(LogSeverity.Info, "Replicator", $"Server {guild.Name} became available"));
 		}
 		private async Task RemoveUnavaiableGuild(SocketGuild guild)
