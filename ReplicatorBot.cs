@@ -27,7 +27,7 @@ namespace ReplicatorBot
 			var SocketConfig = new DiscordSocketConfig { LogLevel = LogSeverity.Info, DefaultRetryMode = RetryMode.AlwaysRetry, MessageCacheSize = 1000000 };
 			this.AvailableServers = new Dictionary<ulong, DiscordServerInfo>();
 			this._client = new DiscordSocketClient(SocketConfig);
-			this._botToken = ConfigurationManager.AppSettings["DiscordToken"];
+			this._botToken = File.ReadAllText(ConfigurationManager.AppSettings["DiscordToken"]);
 			CancellationTokenSource = new CancellationTokenSource();
 			CancellationToken = CancellationTokenSource.Token;
 			BotStart().GetAwaiter().GetResult();
