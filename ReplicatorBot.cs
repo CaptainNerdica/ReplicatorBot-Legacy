@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Configuration;
-using System.Threading.Tasks;
-using System.IO;
-using Discord;
-using Discord.WebSocket;
+﻿using Discord;
 using Discord.Commands;
-using System.Threading;
+using Discord.WebSocket;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReplicatorBot
 {
@@ -25,9 +24,9 @@ namespace ReplicatorBot
 		public ReplicatorBot()
 		{
 			var SocketConfig = new DiscordSocketConfig { LogLevel = LogSeverity.Info, DefaultRetryMode = RetryMode.AlwaysRetry, MessageCacheSize = 1000000 };
-			this.AvailableServers = new Dictionary<ulong, DiscordServerInfo>();
-			this._client = new DiscordSocketClient(SocketConfig);
-			this._botToken = File.ReadAllText(ConfigurationManager.AppSettings["DiscordToken"]);
+			AvailableServers = new Dictionary<ulong, DiscordServerInfo>();
+			_client = new DiscordSocketClient(SocketConfig);
+			_botToken = File.ReadAllText(ConfigurationManager.AppSettings["DiscordToken"]);
 			CancellationTokenSource = new CancellationTokenSource();
 			CancellationToken = CancellationTokenSource.Token;
 			BotStart().GetAwaiter().GetResult();
@@ -36,15 +35,15 @@ namespace ReplicatorBot
 		public async Task BotStart()
 		{
 			await BotLog(new LogMessage(LogSeverity.Info, "Replicator", "Starting Bot"));
-			this._commandService = new CommandService();
-			this._commandHandler = new CommandHandler(_client, _commandService);
-			await this._commandHandler.InstallCommandsAsync();
-			this._client.Log += BotLog;
-			this._client.MessageReceived += MessageReceivedAsync;
-			this._client.GuildAvailable += AddAvailableGuild;
-			this._client.GuildUnavailable += RemoveUnavaiableGuild;
-			this._client.JoinedGuild += JoinedGuild;
-			this._client.LeftGuild += LeftGuild;
+			_commandService = new CommandService();
+			_commandHandler = new CommandHandler(_client, _commandService);
+			await _commandHandler.InstallCommandsAsync();
+			_client.Log += BotLog;
+			_client.MessageReceived += MessageReceivedAsync;
+			_client.GuildAvailable += AddAvailableGuild;
+			_client.GuildUnavailable += RemoveUnavaiableGuild;
+			_client.JoinedGuild += JoinedGuild;
+			_client.LeftGuild += LeftGuild;
 			await _client.LoginAsync(TokenType.Bot, _botToken);
 			await _client.StartAsync();
 		}
@@ -53,9 +52,9 @@ namespace ReplicatorBot
 		{
 			BotLog(new LogMessage(LogSeverity.Info, "Replicator", "Stopping Bot"));
 			FlushAll();
-			this._client.StopAsync();
-			this.CancellationTokenSource.Cancel();
-			this.CancellationTokenSource.Dispose();
+			_client.StopAsync();
+			CancellationTokenSource.Cancel();
+			CancellationTokenSource.Dispose();
 		}
 
 		public void FlushAll()
@@ -137,7 +136,7 @@ namespace ReplicatorBot
 
 		public async void ReadAllMessages(SocketGuild guild, int maxChannelRead, ISocketMessageChannel replyChannel)
 		{
-			var serverInfo = this.AvailableServers[guild.Id];
+			var serverInfo = AvailableServers[guild.Id];
 			serverInfo.AvailableMessages = new Dictionary<ulong, string>();
 			serverInfo.GuildTotalMessages = 0;
 			serverInfo.Locked = true;
@@ -171,7 +170,7 @@ namespace ReplicatorBot
 			await replyChannel.SendMessageAsync("Read all messages on the server and Replicator is now active");
 		}
 
-		public async Task ReadSinceTimestamp(SocketGuild guild, DateTime lastReceivedTime, ISocketMessageChannel replyChannel)
+		public async void ReadSinceTimestamp(SocketGuild guild, DateTime lastReceivedTime, ISocketMessageChannel replyChannel)
 		{
 			await BotLog(new LogMessage(LogSeverity.Info, "Replicator", "Reading new messages since last login"));
 			DiscordServerInfo serverInfo = AvailableServers[guild.Id];
@@ -210,7 +209,7 @@ namespace ReplicatorBot
 				else
 					await replyChannel.SendMessageAsync($"No permission to read in channel {channel.Mention}");
 			}
-			replyChannel.SendMessageAsync("Read all new messages");
+			await replyChannel.SendMessageAsync("Read all new messages");
 			serverInfo.Locked = false;
 			serverInfo.LastMessageReceived = DateTime.UtcNow;
 			serverInfo.Flush();
@@ -218,24 +217,24 @@ namespace ReplicatorBot
 
 		private async Task AddAvailableGuild(SocketGuild guild)
 		{
-			this.AvailableServers.Add(guild.Id, new DiscordServerInfo(guild));
+			AvailableServers.Add(guild.Id, new DiscordServerInfo(guild));
 			await BotLog(new LogMessage(LogSeverity.Info, "Replicator", $"Server {guild.Name} became available"));
 		}
 		private async Task RemoveUnavaiableGuild(SocketGuild guild)
 		{
-			this.AvailableServers[guild.Id].Flush();
-			this.AvailableServers.Remove(guild.Id);
+			AvailableServers[guild.Id].Flush();
+			AvailableServers.Remove(guild.Id);
 			await BotLog(new LogMessage(LogSeverity.Warning, "Replicator", $"Server {guild.Name} became unavailable"));
 		}
 		private async Task JoinedGuild(SocketGuild guild)
 		{
-			this.AvailableServers.Add(guild.Id, new DiscordServerInfo(guild));
+			AvailableServers.Add(guild.Id, new DiscordServerInfo(guild));
 			await BotLog(new LogMessage(LogSeverity.Info, "Replicator", $"Successfully joined server {guild.Name}"));
 		}
 		private async Task LeftGuild(SocketGuild guild)
 		{
-			this.AvailableServers[guild.Id].Clear();
-			this.AvailableServers.Remove(guild.Id);
+			AvailableServers[guild.Id].Clear();
+			AvailableServers.Remove(guild.Id);
 			await BotLog(new LogMessage(LogSeverity.Info, "Replicator", $"Left server {guild.Name}"));
 		}
 	}

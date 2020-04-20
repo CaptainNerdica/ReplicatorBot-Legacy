@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Discord;
 using Discord.Commands;
-using Discord;
-using System.Linq;
 using System.Threading.Tasks;
 namespace ReplicatorBot
 {
@@ -48,7 +44,9 @@ namespace ReplicatorBot
 		}
 		[Command("update")]
 		[Summary("Attempts to update the last read messages on the server")]
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		public async Task UpdateAsync()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			DiscordServerInfo info = Program.Replicant.AvailableServers[Context.Guild.Id];
 			Program.Replicant.ReadSinceTimestamp(Context.Guild, info.LastMessageReceived, Context.Channel);

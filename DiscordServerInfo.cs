@@ -1,12 +1,7 @@
-﻿using System;
+﻿using Discord.WebSocket;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using Discord;
-using Discord.WebSocket;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ReplicatorBot
@@ -31,15 +26,15 @@ namespace ReplicatorBot
 			}
 			public DiscordServerInfoFields(DiscordServerInfo server)
 			{
-				this.GuildId = server.GuildId;
-				this.TargetUserId = server.TargetUserId;
-				this.DisabledUserIds = server.DisabledUserIds;
-				this.DisabledSubstrings = server.DisabledSubstrings;
-				this.AvailableMessages = server.AvailableMessages;
-				this.LastMessageReceived = server.LastMessageReceived;
-				this.AutoUpdateMessages = server.AutoUpdateMessages;
-				this.Enabled = server.Enabled;
-				this.GuildTotalMessages = server.GuildTotalMessages;
+				GuildId = server.GuildId;
+				TargetUserId = server.TargetUserId;
+				DisabledUserIds = server.DisabledUserIds;
+				DisabledSubstrings = server.DisabledSubstrings;
+				AvailableMessages = server.AvailableMessages;
+				LastMessageReceived = server.LastMessageReceived;
+				AutoUpdateMessages = server.AutoUpdateMessages;
+				Enabled = server.Enabled;
+				GuildTotalMessages = server.GuildTotalMessages;
 			}
 		}
 		public ulong GuildId { get; private set; }
@@ -59,12 +54,12 @@ namespace ReplicatorBot
 		{
 			if (!TryRetrieve(guild.Id))
 			{
-				this.GuildId = guild.Id;
-				this.TargetUserId = null;
-				this.DisabledUserIds = new HashSet<ulong>();
-				this.DisabledSubstrings = new HashSet<string>();
-				this.AvailableMessages = new Dictionary<ulong, string>();
-				this.AutoUpdateMessages = true;
+				GuildId = guild.Id;
+				TargetUserId = null;
+				DisabledUserIds = new HashSet<ulong>();
+				DisabledSubstrings = new HashSet<string>();
+				AvailableMessages = new Dictionary<ulong, string>();
+				AutoUpdateMessages = true;
 			}
 		}
 
@@ -78,15 +73,15 @@ namespace ReplicatorBot
 					BinaryFormatter formatter = new BinaryFormatter();
 					DiscordServerInfoFields serverInfo;
 					using (var file = File.OpenRead(path)) serverInfo = (DiscordServerInfoFields)formatter.Deserialize(file);
-					this.GuildId = serverInfo.GuildId;
-					this.TargetUserId = serverInfo.TargetUserId;
-					this.DisabledSubstrings = serverInfo.DisabledSubstrings;
-					this.DisabledUserIds = serverInfo.DisabledUserIds;
-					this.AutoUpdateMessages = serverInfo.AutoUpdateMessages;
-					this.Enabled = serverInfo.Enabled;
-					this.LastMessageReceived = serverInfo.LastMessageReceived;
-					this.AvailableMessages = serverInfo.AvailableMessages;
-					this.GuildTotalMessages = serverInfo.GuildTotalMessages;
+					GuildId = serverInfo.GuildId;
+					TargetUserId = serverInfo.TargetUserId;
+					DisabledSubstrings = serverInfo.DisabledSubstrings;
+					DisabledUserIds = serverInfo.DisabledUserIds;
+					AutoUpdateMessages = serverInfo.AutoUpdateMessages;
+					Enabled = serverInfo.Enabled;
+					LastMessageReceived = serverInfo.LastMessageReceived;
+					AvailableMessages = serverInfo.AvailableMessages;
+					GuildTotalMessages = serverInfo.GuildTotalMessages;
 					return true;
 				}
 				catch
@@ -100,16 +95,16 @@ namespace ReplicatorBot
 
 		public void ClearMessages()
 		{
-			this.GuildTotalMessages = 0;
-			this.LastMessageReceived = new DateTime();
-			this.Locked = true;
-			this.AvailableMessages = new Dictionary<ulong, string>();
+			GuildTotalMessages = 0;
+			LastMessageReceived = new DateTime();
+			Locked = true;
+			AvailableMessages = new Dictionary<ulong, string>();
 		}
 
 		private void WriteToDisk()
 		{
-			var path = string.Format(pathformat, this.GuildId);
-			if (!new DirectoryInfo("GuildStorage").Exists) 
+			var path = string.Format(pathformat, GuildId);
+			if (!new DirectoryInfo("GuildStorage").Exists)
 				Directory.CreateDirectory("GuildStorage");
 			var formatter = new BinaryFormatter();
 			DiscordServerInfoFields fields = new DiscordServerInfoFields(this);
@@ -123,16 +118,16 @@ namespace ReplicatorBot
 
 		public void Clear()
 		{
-			var path = string.Format(pathformat, this.GuildId);
+			var path = string.Format(pathformat, GuildId);
 			var f = new FileInfo(path);
 			if (f.Exists)
 				f.Delete();
-			this.TargetUserId = null;
-			this.DisabledUserIds = null;
-			this.DisabledSubstrings = null;
-			this.GuildTotalMessages = 0;
-			this.LastMessageReceived = new DateTime();
-			this.AvailableMessages = null;
+			TargetUserId = null;
+			DisabledUserIds = null;
+			DisabledSubstrings = null;
+			GuildTotalMessages = 0;
+			LastMessageReceived = new DateTime();
+			AvailableMessages = null;
 		}
 	}
 }
