@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using System.Threading.Tasks;
 
 namespace ReplicatorBot
@@ -19,7 +20,7 @@ namespace ReplicatorBot
 			public async Task GetInfo()
 			{
 				DiscordServerInfo info = Program.Replicant.AvailableServers[Context.Guild.Id];
-				string builder = $"Replicated User: {(info.TargetUserId == null ? "None" : Context.Client.GetUser((ulong)info.TargetUserId).Username)}\n";
+				string builder = $"Replicated User: {(info.TargetUserId == null ? "None" : Context.Guild.GetUser((ulong)info.TargetUserId).Nickname)}\n";
 				builder += $"Enabled: {info.Enabled}\n";
 				builder += $"Probability: {info.Proability}\n";
 				builder += $"Server messages: {info.GuildTotalMessages}\n";

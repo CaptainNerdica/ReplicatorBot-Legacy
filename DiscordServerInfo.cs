@@ -113,7 +113,7 @@ namespace ReplicatorBot
 			if (fileInfo.Exists)
 				fileInfo.Delete();
 			using FileStream file = File.Open(path, FileMode.OpenOrCreate);
-			new BinaryFormatter().Serialize(file, this);
+			new BinaryFormatter().Serialize(file, new DiscordServerInfoFields(this));
 		}
 		public void Flush() => WriteToDisk();
 
