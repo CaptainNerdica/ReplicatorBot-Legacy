@@ -67,15 +67,6 @@ namespace ReplicatorBot
 		public Task BotLog(LogMessage msg)
 		{
 			Console.WriteLine(msg);
-			if (!new FileInfo(ConfigurationManager.AppSettings["LogFile"]).Exists)
-				File.CreateText(ConfigurationManager.AppSettings["LogFile"]).Close();
-			try
-			{
-				using StreamWriter s = File.AppendText(ConfigurationManager.AppSettings["LogFile"]);
-				s.WriteLine(msg);
-				s.Close();
-			}
-			catch { }
 			return Task.CompletedTask;
 		}
 		private async Task MessageReceivedAsync(SocketMessage message)

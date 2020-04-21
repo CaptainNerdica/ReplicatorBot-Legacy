@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Configuration;
 
 namespace ReplicatorBot
 {
@@ -49,7 +50,9 @@ namespace ReplicatorBot
 		public int TargetTotalMessages { get => AvailableMessages.Count; }
 		public int GuildTotalMessages;
 		public double Proability { get => (double)TargetTotalMessages / GuildTotalMessages; }
-		internal readonly static string pathformat = "GuildStorage/{0}.dat";
+		private static readonly string directory = ConfigurationManager.AppSettings["ServerStorageDirectory"];
+		private static readonly string fileFormat = ConfigurationManager.AppSettings["ServerStorageFormat"];
+		private static readonly string pathFormat = $"{directory}/{fileFormat}";
 		public DiscordServerInfo(SocketGuild guild)
 		{
 			if (!TryRetrieve(guild.Id))
@@ -65,7 +68,7 @@ namespace ReplicatorBot
 
 		private bool TryRetrieve(ulong guildId)
 		{
-			var path = string.Format(pathformat, guildId);
+			var path = string.Format(pathFormat, guildId);
 			if (File.Exists(path))
 			{
 				try
@@ -103,22 +106,20 @@ namespace ReplicatorBot
 
 		private void WriteToDisk()
 		{
-			var path = string.Format(pathformat, GuildId);
-			if (!new DirectoryInfo("GuildStorage").Exists)
-				Directory.CreateDirectory("GuildStorage");
-			var formatter = new BinaryFormatter();
-			DiscordServerInfoFields fields = new DiscordServerInfoFields(this);
-			var fileInfo = new FileInfo(path);
+			string path = string.Format(pathFormat, GuildId);
+			if (!new DirectoryInfo(directory).Exists)
+				Directory.CreateDirectory(directory);
+			FileInfo fileInfo = new FileInfo(path);
 			if (fileInfo.Exists)
 				fileInfo.Delete();
-			using var file = File.Open(path, FileMode.OpenOrCreate);
-			formatter.Serialize(file, fields);
+			using FileStream file = File.Open(path, FileMode.OpenOrCreate);
+			new BinaryFormatter().Serialize(file, this);
 		}
 		public void Flush() => WriteToDisk();
 
 		public void Clear()
 		{
-			var path = string.Format(pathformat, GuildId);
+			var path = string.Format(pathFormat, GuildId);
 			var f = new FileInfo(path);
 			if (f.Exists)
 				f.Delete();
