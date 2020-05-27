@@ -21,6 +21,8 @@ namespace ReplicatorBot
 		private CommandHandler _commandHandler;
 		private readonly string _botToken;
 
+		private static readonly string[] GlobalDisabledSubstrings = new string[] { "@everyone", "@here" };
+
 		public ReplicatorBot()
 		{
 			var SocketConfig = new DiscordSocketConfig { LogLevel = LogSeverity.Info, DefaultRetryMode = RetryMode.AlwaysRetry, MessageCacheSize = 1000000 };
@@ -110,18 +112,11 @@ namespace ReplicatorBot
 		private bool TestValidMessage(IMessage message, DiscordServerInfo serverInfo)
 		{
 			if (message.Author.Id == serverInfo.TargetUserId)
-			{
-				if (message.MentionedUserIds.Count == 0 && message.MentionedRoleIds.Count == 0 && message.MentionedChannelIds.Count == 0)
-				{
-					if (message.Embeds.Count == 0)
-					{
-						if (!message.Content.Contains(serverInfo.DisabledSubstrings))
-						{
-							return true;
-						}
-					}
-				}
-			}
+			if (message.MentionedUserIds.Count == 0 && message.MentionedRoleIds.Count == 0 && message.MentionedChannelIds.Count == 0)
+			if (!message.Content.Contains(GlobalDisabledSubstrings))
+			if (message.Embeds.Count == 0)
+			if (!message.Content.Contains(serverInfo.DisabledSubstrings))
+				return true;
 			return false;
 		}
 
